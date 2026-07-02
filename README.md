@@ -48,7 +48,7 @@ Copy the `.env.example` file to `.env`:
 cp .env.example .env
 ```
 Open `.env` and configure your API keys:
-- **`GOOGLE_API_KEY`**: Obtain from Google AI Studio. Used for embedding and generating conversational responses (Gemini-1.5-Flash).
+- **`GOOGLE_API_KEY`**: Obtain from Google AI Studio. Used for embedding and generating conversational responses (Gemini-2.5-Flash).
 - **`SARVAM_API_KEY`**: Obtain from the Sarvam AI Dashboard. Used for regional language Speech-to-Text (`saaras:v3`) and Text-to-Speech (`bulbul:v3`).
 
 ### 3. Install Dependencies
@@ -83,7 +83,7 @@ streamlit run app.py
 | **ASR & TTS** | Sarvam AI REST API | `saaras:v3` for speech transcription, `bulbul:v3` for voice playback |
 | **Vector DB** | FAISS | High-speed offline similarity indexing of text chunks |
 | **LLM Orchestrator**| LangChain | Query rephrasing, chat history parsing, and system prompting |
-| **LLM Model** | Gemini 1.5 Flash / OpenAI | Empathetic chat responses, regional translation, citations formatting |
+| **LLM Model** | Gemini 2.5 Flash / OpenAI | Empathetic chat responses, regional translation, citations formatting |
 | **Crisis Filter** | Regex Monitor | Intercepts crisis keywords to render immediate helpline cards |
 
 ---
