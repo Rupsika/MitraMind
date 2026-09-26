@@ -1,0 +1,167 @@
+{
+  "status": "ok",
+  "n": 15,
+  "k": 3,
+  "metrics": {
+    "recall@3": 1.0,
+    "precision@3": 0.756,
+    "citation_correctness": 1.0
+  },
+  "rows": [
+    {
+      "question": "How can stress be managed?",
+      "expected": "nimhans_stress_guide.txt",
+      "retrieved": [
+        "nimhans_stress_guide.txt",
+        "nimhans_stress_guide.txt",
+        "who_mental_health_action_plan.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "How do I do deep breathing to calm down?",
+      "expected": "nimhans_stress_guide.txt",
+      "retrieved": [
+        "nimhans_stress_guide.txt",
+        "iCall_helpline_faq.txt",
+        "iCall_helpline_faq.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "What is cognitive reframing?",
+      "expected": "nimhans_stress_guide.txt",
+      "retrieved": [
+        "nimhans_stress_guide.txt",
+        "nimhans_stress_guide.txt",
+        "iCall_helpline_faq.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "When should I see a mental health professional for stress?",
+      "expected": "nimhans_stress_guide.txt",
+      "retrieved": [
+        "nimhans_stress_guide.txt",
+        "nimhans_stress_guide.txt",
+        "nimhans_stress_guide.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "How can I break down overwhelming tasks?",
+      "expected": "nimhans_stress_guide.txt",
+      "retrieved": [
+        "nimhans_stress_guide.txt",
+        "nimhans_stress_guide.txt",
+        "nimhans_stress_guide.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "What is the 5-4-3-2-1 grounding method?",
+      "expected": "iCall_helpline_faq.txt",
+      "retrieved": [
+        "iCall_helpline_faq.txt",
+        "iCall_helpline_faq.txt",
+        "nimhans_stress_guide.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "How should a counselor respond to panic attacks?",
+      "expected": "iCall_helpline_faq.txt",
+      "retrieved": [
+        "iCall_helpline_faq.txt",
+        "iCall_helpline_faq.txt",
+        "iCall_helpline_faq.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "Is what I tell a helpline counselor kept confidential?",
+      "expected": "iCall_helpline_faq.txt",
+      "retrieved": [
+        "iCall_helpline_faq.txt",
+        "iCall_helpline_faq.txt",
+        "crisis_resources_india.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "How do I cope with parental pressure about exams and career?",
+      "expected": "iCall_helpline_faq.txt",
+      "retrieved": [
+        "iCall_helpline_faq.txt",
+        "iCall_helpline_faq.txt",
+        "nimhans_stress_guide.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "What helplines are available in India for a mental health crisis?",
+      "expected": "crisis_resources_india.txt",
+      "retrieved": [
+        "crisis_resources_india.txt",
+        "crisis_resources_india.txt",
+        "iCall_helpline_faq.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "What should I do if a friend talks about suicide?",
+      "expected": "crisis_resources_india.txt",
+      "retrieved": [
+        "crisis_resources_india.txt",
+        "crisis_resources_india.txt",
+        "nimhans_stress_guide.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "Is there a Tamil-language helpline?",
+      "expected": "crisis_resources_india.txt",
+      "retrieved": [
+        "crisis_resources_india.txt",
+        "crisis_resources_india.txt",
+        "iCall_helpline_faq.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "What does the WHO recommend for sleep hygiene?",
+      "expected": "who_mental_health_action_plan.txt",
+      "retrieved": [
+        "who_mental_health_action_plan.txt",
+        "who_mental_health_action_plan.txt",
+        "who_mental_health_action_plan.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "What are the key principles of the WHO mental health action plan?",
+      "expected": "who_mental_health_action_plan.txt",
+      "retrieved": [
+        "who_mental_health_action_plan.txt",
+        "who_mental_health_action_plan.txt",
+        "who_mental_health_action_plan.txt"
+      ],
+      "hit": true
+    },
+    {
+      "question": "How can workplaces support employee mental health?",
+      "expected": "who_mental_health_action_plan.txt",
+      "retrieved": [
+        "who_mental_health_action_plan.txt",
+        "who_mental_health_action_plan.txt",
+        "crisis_resources_india.txt"
+      ],
+      "hit": true
+    }
+  ],
+  "limitations": [
+    "Tiny knowledge base (4 short documents) and 15 author-written questions.",
+    "Groundedness and hallucination rate are not measured automatically.",
+    "Retrieval-only: does not evaluate the generated answer."
+  ]
+}

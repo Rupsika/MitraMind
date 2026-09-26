@@ -1,0 +1,41 @@
+name: Deploy
+
+# Runs only after CI succeeded on main AND the repo variable DEPLOY_ENABLED is 'true'.
+# The provider-specific step is a placeholder: choose a host (see README "Deployment"), fill it in,
+# then set DEPLOY_ENABLED. Secrets come from GitHub environment secrets and are never committed.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    if: ${{ vars.DEPLOY_ENABLED == 'true' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ github.event.workflow_run.head_sha }}" }
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push images
+        run: |
+          REPO=ghcr.io/${GITHUB_REPOSITORY,,}
+          SHA=${{ github.event.workflow_run.head_sha }}
+          docker build -f ai-service/Dockerfile -t $REPO/ai-service:$SHA .
+          docker build -f worker/Dockerfile -t $REPO/worker:$SHA .
+          docker build -t $REPO/backend:$SHA backend
+          docker build -t $REPO/frontend:$SHA frontend
+          for s in ai-service worker backend frontend; do docker push $REPO/$s:$SHA; done
+      - name: Deploy to hosting provider
+        run: |
+          echo "TODO: deploy images tagged ${{ github.event.workflow_run.head_sha }} to your chosen provider."
+          echo "Required environment secrets: DATABASE_URL, JWT_SECRET, GOOGLE_API_KEY, SARVAM_API_KEY, REDIS_URL."
+          exit 1

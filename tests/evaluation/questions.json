@@ -1,0 +1,20 @@
+{
+  "_note": "Questions are author-written against the four documents in knowledge-base/documents. expected_source is the document that contains the answer.",
+  "questions": [
+    {"question": "How can stress be managed?", "expected_topic": "stress", "expected_source": "nimhans_stress_guide.txt"},
+    {"question": "How do I do deep breathing to calm down?", "expected_topic": "breathing", "expected_source": "nimhans_stress_guide.txt"},
+    {"question": "What is cognitive reframing?", "expected_topic": "reframing", "expected_source": "nimhans_stress_guide.txt"},
+    {"question": "When should I see a mental health professional for stress?", "expected_topic": "professional help", "expected_source": "nimhans_stress_guide.txt"},
+    {"question": "How can I break down overwhelming tasks?", "expected_topic": "time management", "expected_source": "nimhans_stress_guide.txt"},
+    {"question": "What is the 5-4-3-2-1 grounding method?", "expected_topic": "grounding", "expected_source": "iCall_helpline_faq.txt"},
+    {"question": "How should a counselor respond to panic attacks?", "expected_topic": "panic", "expected_source": "iCall_helpline_faq.txt"},
+    {"question": "Is what I tell a helpline counselor kept confidential?", "expected_topic": "confidentiality", "expected_source": "iCall_helpline_faq.txt"},
+    {"question": "How do I cope with parental pressure about exams and career?", "expected_topic": "academic stress", "expected_source": "iCall_helpline_faq.txt"},
+    {"question": "What helplines are available in India for a mental health crisis?", "expected_topic": "helplines", "expected_source": "crisis_resources_india.txt"},
+    {"question": "What should I do if a friend talks about suicide?", "expected_topic": "first response", "expected_source": "crisis_resources_india.txt"},
+    {"question": "Is there a Tamil-language helpline?", "expected_topic": "helplines", "expected_source": "crisis_resources_india.txt"},
+    {"question": "What does the WHO recommend for sleep hygiene?", "expected_topic": "sleep", "expected_source": "who_mental_health_action_plan.txt"},
+    {"question": "What are the key principles of the WHO mental health action plan?", "expected_topic": "principles", "expected_source": "who_mental_health_action_plan.txt"},
+    {"question": "How can workplaces support employee mental health?", "expected_topic": "workplace", "expected_source": "who_mental_health_action_plan.txt"}
+  ]
+}

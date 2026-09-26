@@ -1,96 +1,102 @@
-# 🧠 MitraMind — Multilingual Mental Health Support Chatbot
+# MitraMind
 
-MitraMind is a production-grade, empathetic multilingual mental health support chatbot. It answers user questions by querying a curated, regional-appropriate mental health database using **Retrieval-Augmented Generation (RAG)**, and features high-fidelity **voice input & output** in Indian regional languages (Hindi, Telugu, Tamil, and English) using the **Sarvam AI** platform.
+> A little support, in a language that feels like home.
 
-The system features **active crisis monitoring**, automatically identifying expressions of self-harm or deep distress and immediately displaying national support hotlines.
+MitraMind is a multilingual (English, Hindi, Telugu, Tamil) mental-wellness support app: daily check-ins, grounded chat with citations, voice input/output, a curated wellness library, recommendations and progress tracking, with a safety layer that is independent of the LLM.
 
----
+**It is a wellness support and information tool, not a therapist, a diagnostic system, or a substitute for professional or emergency care.**
 
-## 🚀 Key Features
+## Architecture
 
-*   **RAG over Mental Health Guidelines**: Answers queries by pulling context from official documents (WHO Mental Health guidelines, NIMHANS stress guide, iCall scripts) via LangChain and a local FAISS vector store.
-*   **Indian Regional Language Voice Support**: Speak and listen in **Hindi (हिन्दी)**, **Telugu (తెలుగు)**, and **Tamil (தமிழ்)** using Sarvam AI ASR (Speech-to-Text) and TTS (Text-to-Speech) APIs.
-*   **Empathetic Crisis Grounding**: Actively monitors conversational patterns for emergency keywords and displays crisis hotline banners with active telephone links.
-*   **Premium Glassmorphic Interface**: Custom dark-mode UI styled via CSS containing smooth entrance animations, chat bubbles, and seamless browser-level audio recording.
-
----
-
-## 🛠️ Architecture Flow
-
-```mermaid
-graph TD
-    User([User]) -->|Voice / Text| UI[Streamlit Interface]
-    UI -->|Audio Input| ASR[Sarvam ASR API]
-    ASR -->|Transcribed Text| RAG[RAG Orchestration]
-    UI -->|Text Input| RAG
-    RAG -->|Similarity Search| VDB[(FAISS Vector Store)]
-    VDB -->|Relevant Chunks| LLM[LLM Backbone: Gemini / OpenAI]
-    RAG -->|Generate Response| TTS[Sarvam TTS API]
-    TTS -->|Speech Audio| UI
-    LLM -->|Text Response + Citations| UI
-    RAG -->|Crisis Match| Crisis[Helpline Alert Banner]
-    Crisis --> UI
+```
+React + TS (Vite, Redux Toolkit, Tailwind)
+        │  REST /api/v1
+Node + Express + TS ── Prisma ── PostgreSQL
+        │        └── Redis (rate limiting, resource cache, job queue)
+        │ HTTP
+FastAPI AI service ── Safety (rules + ML classifier + context)
+        ├── RAG: LangChain + FAISS + Gemini
+        └── Voice: Sarvam ASR / TTS
+Worker (Python) ── Redis queue ── AI service
 ```
 
----
+Node owns auth, authorization, persistence and orchestration. The Python service owns safety, RAG, Gemini and voice.
 
-## ⚙️ Project Setup
+```
+frontend/         React app (+ Cypress e2e in frontend/cypress)
+backend/          Express API, Prisma schema + migration, seed
+ai-service/       FastAPI: app/{api,rag,voice,safety}, tests/
+worker/           Redis-list job worker (knowledge-base reindex)
+knowledge-base/   Curated source documents indexed by FAISS
+tests/evaluation/ RAG + safety evaluation data and scripts
+docker-compose.yml, .github/workflows/{ci,deploy}.yml
+```
 
-### 1. Clone the repository
-Ensure you are in the workspace folder:
+The original Streamlit prototype was migrated, not rewritten: `rag/`, `voice/` and `config.py` moved to `ai-service/app/` with git history preserved (`git log --follow`). The Streamlit UI was removed; it's in history at commit `b0b757f`.
+
+## Run locally
+
+Prerequisites: Node 22+, Python 3.12+, PostgreSQL 16, Redis (optional locally).
+
 ```bash
-cd MitraMind
+cp .env.example .env        # set JWT_SECRET, DATABASE_URL, GOOGLE_API_KEY (+ SARVAM_API_KEY for voice)
+
+# 1. AI service  (http://localhost:8000/health)
+cd ai-service && pip install -r requirements.txt
+python -m app.rag.ingest                       # builds the FAISS index from knowledge-base/documents
+uvicorn app.main:app --reload --port 8000
+
+# 2. Backend     (http://localhost:4000/health)
+cd backend && npm ci
+npx prisma migrate deploy && npm run seed      # creates tables, seeds curated wellness activities
+npm run dev
+
+# 3. Frontend    (http://localhost:5173, proxies /api to :4000)
+cd frontend && npm ci && npm run dev
 ```
 
-### 2. Configure Environment Variables
-Copy the `.env.example` file to `.env`:
-```bash
-cp .env.example .env
-```
-Open `.env` and configure your API keys:
-- **`GOOGLE_API_KEY`**: Obtain from Google AI Studio. Used for embedding and generating conversational responses (Gemini-2.5-Flash).
-- **`SARVAM_API_KEY`**: Obtain from the Sarvam AI Dashboard. Used for regional language Speech-to-Text (`saaras:v3`) and Text-to-Speech (`bulbul:v3`).
+Or everything at once: `docker compose up --build` (needs `JWT_SECRET`, `POSTGRES_PASSWORD`, `GOOGLE_API_KEY` in `.env`; app on http://localhost:8080). After first start seed the activities: `docker compose exec backend npm run seed:prod`.
 
-### 3. Install Dependencies
-It is recommended to run this inside a virtual environment:
-```bash
-python -m venv venv
-venv\Scripts\activate   # On Windows
-source venv/bin/activate # On Unix/macOS
+## Tests
 
-pip install -r requirements.txt
-```
-
-### 4. Build the RAG Knowledge Index
-Ingest and split the knowledge base documents (`data/knowledge_base/*.txt`) to create the FAISS database directory:
-```bash
-python data/ingest_docs.py
-```
-
-### 5. Launch the Web Application
-Start the Streamlit dashboard:
-```bash
-streamlit run app.py
-```
-
----
-
-## 🧑‍💻 Technical Details
-
-| Component | Technology | Description |
+| Area | Command | Notes |
 |---|---|---|
-| **Frontend UI** | Streamlit + Custom CSS | Glassmorphism, styled bubbles, custom badges, browser recording |
-| **ASR & TTS** | Sarvam AI REST API | `saaras:v3` for speech transcription, `bulbul:v3` for voice playback |
-| **Vector DB** | FAISS | High-speed offline similarity indexing of text chunks |
-| **LLM Orchestrator**| LangChain | Query rephrasing, chat history parsing, and system prompting |
-| **LLM Model** | Gemini 2.5 Flash / OpenAI | Empathetic chat responses, regional translation, citations formatting |
-| **Crisis Filter** | Regex Monitor | Intercepts crisis keywords to render immediate helpline cards |
+| AI service | `cd ai-service && python -m pytest` | Gemini/Sarvam are mocked |
+| Worker | `cd worker && python -m pytest tests` | |
+| Backend | `cd backend && npm test` | Jest + Supertest against an in-memory Prisma fake |
+| Frontend | `cd frontend && npm test` | Vitest + React Testing Library |
+| E2E | `cd frontend && npm run dev` then `npm run e2e` | Cypress, API stubbed with `cy.intercept` |
+| Safety eval | `python tests/evaluation/run_safety_eval.py` | precision / recall / F1 / confusion matrix |
+| RAG eval | `python tests/evaluation/run_rag_eval.py` | Recall@K, Precision@K, citation correctness; needs `GOOGLE_API_KEY` + index |
 
----
+## Safety design
 
-## 💡 Demo Prompts to Try
+`POST /ai/chat` always screens the message first: rule patterns (en/hi/te/ta) + a small TF-IDF/logistic-regression classifier + recent-message context → `NORMAL | DISTRESS | HIGH_CONCERN | CRISIS_SIGNAL`.
 
-1. **Stress Coping**: *"I am feeling extremely stressed about my exams. What should I do?"* (Will retrieve breathing instructions from the NIMHANS Guide).
-2. **Support Protocol**: *"How should I support a friend who is feeling depressed?"* (Will retrieve active listening protocols from the iCall FAQ).
-3. **Crisis Trigger**: *"I don't want to live anymore, everything is going wrong."* (Triggers the red alert helpline card).
-4. **Multilingual Test**: Switch the language to **Hindi (हिन्दी)** and record yourself asking: *"मुझे बहुत चिंता हो रही है।"* (Mitra will respond in Hindi and synthesise audio feedback).
+- `CRISIS_SIGNAL`: generation is skipped. A fixed, translated supportive message and the verified helplines from `ai-service/app/config.py` (taken from `knowledge-base/documents/crisis_resources_india.txt`) are returned. The LLM never writes helpline numbers.
+- `HIGH_CONCERN`: normal grounded answer plus a note encouraging human support and the helpline list.
+- Only `risk_level`, `trigger_type` and `action_shown` are stored in `safety_events`, never message text.
+
+**Limitations.** The classifier is trained on ~60 author-written examples and the evaluation set (`tests/evaluation/safety_eval.json`, 25 cases) is also author-written and *not clinically reviewed*. Results show regression behaviour, not real-world safety. Have a qualified reviewer validate labels, wording and the helpline list before any real-user release.
+
+## API
+
+Base `/api/v1` (JWT bearer): `auth/{register,login,me,logout}`, `chat/{conversations,history,:id,:id/messages}`, `checkins[/summary]`, `resources[/:id/{start,complete}]`, `progress`, `recommendations`, `voice/{transcribe,synthesize}`, `safety/analyze`. Inputs are validated with Zod (e.g. check-in scores are integers 1–10).
+
+## Privacy
+
+Message text, audio, passwords and tokens are never logged; logs contain request id, endpoint, status and latency only. Conversation content is stored in Postgres per user and is only readable by its owner. Define and implement a retention policy before real use.
+
+## Status against the implementation plan
+
+Implemented and tested: AI service (`/health`, `/ai/chat`, `/ai/transcribe`, `/ai/synthesize`, `/ai/safety/analyze`), Node API, Prisma schema + migration, auth, check-ins with weekly pattern summary, chat + history + sources, four UI languages, hold-to-speak voice UI, safety layer, wellness library with progress, rule-based recommendations, progress charts, Redis rate limiting/caching, worker, Docker files, CI workflow, Cypress.
+
+Not done / caveats:
+- **Docker images and `docker compose` were not built or run** in the development environment (no Docker available). Treat them as unverified.
+- **Backend tests use an in-memory Prisma fake**; the migration SQL was generated from the schema but never applied to a real Postgres.
+- **Voice** works only with a valid `SARVAM_API_KEY`; the browser records, converts to WAV and posts it, but this path was not exercised against Sarvam. Cypress does not cover voice.
+- **Deploy workflow** is a gated placeholder (`DEPLOY_ENABLED`); no cloud provider chosen. **Kubernetes, admin dashboard and advanced observability** (plan phases J/36) were not started.
+- The recommendation engine lives in the Node backend (it owns the data) rather than `ai-service/app/recommendation/`.
+- Hindi/Telugu/Tamil UI strings were machine-drafted and need native-speaker review; some Telugu/Tamil strings fall back to English. Wellness activities are English only.
+- JWT is kept in `localStorage` for simplicity; consider httpOnly cookies before production.
+- The knowledge base is four short documents; RAG metrics on it (Recall@3 = 1.0 in the last run) say little about coverage.

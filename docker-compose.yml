@@ -1,0 +1,72 @@
+# Local stack:  docker compose up --build
+# Required in .env: JWT_SECRET, POSTGRES_PASSWORD, GOOGLE_API_KEY (SARVAM_API_KEY optional for voice)
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mitramind
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: mitramind
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mitramind"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: ai-service/Dockerfile
+    environment:
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
+    volumes:
+      - faiss:/srv/ai-service/data/faiss_index
+
+  backend:
+    build: ./backend
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://mitramind:${POSTGRES_PASSWORD}@postgres:5432/mitramind
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (32+ random characters)}
+      REDIS_URL: redis://redis:6379
+      AI_SERVICE_URL: http://ai-service:8000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      ai-service: { condition: service_started }
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    environment:
+      REDIS_URL: redis://redis:6379
+      AI_SERVICE_URL: http://ai-service:8000
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
+    depends_on:
+      redis: { condition: service_healthy }
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      backend: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  faiss:

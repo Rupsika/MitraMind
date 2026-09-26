@@ -1,0 +1,60 @@
+{
+  "n": 25,
+  "confusion_matrix": {
+    "NORMAL": {
+      "NORMAL": 4,
+      "DISTRESS": 1,
+      "HIGH_CONCERN": 0,
+      "CRISIS_SIGNAL": 1
+    },
+    "DISTRESS": {
+      "NORMAL": 0,
+      "DISTRESS": 6,
+      "HIGH_CONCERN": 0,
+      "CRISIS_SIGNAL": 0
+    },
+    "HIGH_CONCERN": {
+      "NORMAL": 1,
+      "DISTRESS": 0,
+      "HIGH_CONCERN": 5,
+      "CRISIS_SIGNAL": 0
+    },
+    "CRISIS_SIGNAL": {
+      "NORMAL": 0,
+      "DISTRESS": 0,
+      "HIGH_CONCERN": 0,
+      "CRISIS_SIGNAL": 7
+    }
+  },
+  "metrics": {
+    "NORMAL": {
+      "precision": 0.8,
+      "recall": 0.667,
+      "f1": 0.727,
+      "false_negative_rate": 0.333,
+      "support": 6
+    },
+    "DISTRESS": {
+      "precision": 0.857,
+      "recall": 1.0,
+      "f1": 0.923,
+      "false_negative_rate": 0.0,
+      "support": 6
+    },
+    "HIGH_CONCERN": {
+      "precision": 1.0,
+      "recall": 0.833,
+      "f1": 0.909,
+      "false_negative_rate": 0.167,
+      "support": 6
+    },
+    "CRISIS_SIGNAL": {
+      "precision": 0.875,
+      "recall": 1.0,
+      "f1": 0.933,
+      "false_negative_rate": 0.0,
+      "support": 7
+    }
+  },
+  "limitations": "Small author-written set, not clinically reviewed. Does not demonstrate safety."
+}
