@@ -11,7 +11,11 @@ export function createApp() {
   const app = express();
   app.set("trust proxy", 1);
   app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIN.split(",").map((s) => s.trim()) }));
+  const origins = [env.CORS_ORIGIN, env.FRONTEND_URL ?? ""]
+    .flatMap((v) => v.split(","))
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  app.use(cors({ origin: origins }));
   app.use(requestLogger);
   app.use(globalLimiter());
   app.use(express.json({ limit: "100kb" }));

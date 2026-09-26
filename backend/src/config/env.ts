@@ -17,6 +17,8 @@ const schema = z.object({
   AI_SERVICE_URL: z.string().default("http://localhost:8000"),
   REDIS_URL: z.string().optional(),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
+  // Deployed frontend origin(s), comma-separated; added to the CORS allow-list.
+  FRONTEND_URL: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
