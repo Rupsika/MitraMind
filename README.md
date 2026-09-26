@@ -57,6 +57,51 @@ cd frontend && npm ci && npm run dev
 
 Or everything at once: `docker compose up --build` (needs `JWT_SECRET`, `POSTGRES_PASSWORD`, `GOOGLE_API_KEY` in `.env`; app on http://localhost:8080). After first start seed the activities: `docker compose exec backend npm run seed:prod`.
 
+## Production deployment
+
+**Architecture:** Browser → Vite frontend (Vercel) → Express backend (Vercel) → Neon PostgreSQL; backend → FastAPI AI service (Render, Docker) → Gemini / FAISS / Sarvam. The worker and Redis are optional and not needed for the core app.
+
+The AI service is *not* deployed on Vercel: it needs a writable FAISS index directory (built at startup via a Gemini call) and heavy native dependencies (faiss-cpu, scikit-learn, langchain). It uses the existing `ai-service/Dockerfile`.
+
+### Environment variables
+| Where | Variable | Notes |
+|---|---|---|
+| Backend (Vercel) | `DATABASE_URL` | Neon pooled connection string |
+| | `JWT_SECRET` | 32+ random chars |
+| | `AI_SERVICE_URL` | AI service public URL |
+| | `FRONTEND_URL` | Deployed frontend origin (CORS allow-list) |
+| | `NODE_ENV` | `production` |
+| Frontend (Vercel) | `VITE_API_URL` | `https://<backend-domain>/api/v1` (build-time) |
+| AI service (Render) | `GOOGLE_API_KEY`, `SARVAM_API_KEY`, `INTERNAL_API_TOKEN` | see `render.yaml` |
+
+See `.env.example` for names only. Never commit real values.
+
+### Neon database
+Create the database in Neon and copy the pooled connection string into `DATABASE_URL`. Apply the existing migrations (never `migrate reset`):
+```bash
+cd backend && npx prisma migrate deploy
+```
+
+### Deploy
+1. **AI service:** Render → New → Blueprint from this repo (`render.yaml`), or a Docker web service with Dockerfile `ai-service/Dockerfile` and build context `.`. Set the three secrets, and keep the persistent disk so the index survives restarts.
+2. **Backend:** new Vercel project, root directory `backend`. Set the backend variables above. `backend/vercel.json` and `backend/api/index.ts` route all requests to Express.
+3. **Frontend:** new Vercel project, root directory `frontend` (Vite, output `dist`). Set `VITE_API_URL`, then redeploy.
+4. Set `FRONTEND_URL` on the backend to the frontend URL and redeploy the backend.
+
+Frontend → backend uses `VITE_API_URL`; backend → AI service uses `AI_SERVICE_URL`.
+
+### Health checks
+```bash
+curl https://<backend-domain>/health
+curl https://<ai-service-domain>/health
+```
+
+### Security notes
+- `.env` files are git-ignored; only `.env.example` is committed.
+- CORS is restricted to `CORS_ORIGIN` / `FRONTEND_URL`; no wildcard.
+- Rotate any key that was ever shared or committed. `/ai/admin/reindex` is disabled unless `INTERNAL_API_TOKEN` is set.
+- On Render's free tier the service sleeps when idle, so the first request can be slow.
+
 ## Tests
 
 | Area | Command | Notes |
