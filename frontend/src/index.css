@@ -1,0 +1,61 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+@theme {
+  --font-sans: "Inter Variable", "Noto Sans", "Nirmala UI", "Noto Sans Devanagari", "Noto Sans Telugu",
+    "Noto Sans Tamil", system-ui, sans-serif;
+  --color-canvas: #fafaf7;
+  --color-surface: #ffffff;
+  --color-ink: #222222;
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
+  --color-primary: #3f7d6e;
+  --color-primary-dark: #326557;
+  --color-primary-soft: #e8f1ee;
+  --color-alert-soft: #fbf3ee;
+  --color-alert: #9a4a1f;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+}
+
+html {
+  background: var(--color-canvas);
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Subtle, short transitions only. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+  * {
+    transition: none !important;
+  }
+}

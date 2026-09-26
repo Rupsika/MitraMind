@@ -1,20 +1,32 @@
 # Environment variables
 .env
+.env.*
+!.env.example
 
-# Virtual environment
+# Python
 venv/
 .venv/
 env/
-
-# Python caching
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
 
-# Vector database index
-data/faiss_index/
+# Vector database index (rebuilt from knowledge-base/documents)
+ai-service/data/faiss_index/
 
-# Streamlit config and cache
-.streamlit/
-.streamlit/config.toml
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Cypress
+frontend/cypress/videos/
+frontend/cypress/screenshots/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
