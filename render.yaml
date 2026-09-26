@@ -15,8 +15,6 @@ services:
         sync: false
       - key: INTERNAL_API_TOKEN
         sync: false
-    # Persistent disk keeps the FAISS index across restarts (requires a paid plan).
-    disk:
-      name: faiss-index
-      mountPath: /srv/ai-service/data/faiss_index
-      sizeGB: 1
+    # No persistent disk (free plan): the FAISS index is rebuilt on each start.
+    # To keep it across restarts on a paid plan, add:
+    #   disk: { name: faiss-index, mountPath: /srv/ai-service/data/faiss_index, sizeGB: 1 }
