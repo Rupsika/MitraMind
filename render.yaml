@@ -4,6 +4,7 @@ services:
   - type: web
     name: mitramind-ai-service
     runtime: docker
+    plan: free
     dockerfilePath: ./ai-service/Dockerfile
     dockerContext: .
     healthCheckPath: /health
